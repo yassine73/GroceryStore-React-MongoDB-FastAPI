@@ -1,0 +1,15 @@
+# Create and Activate Environment with python 3.12.5
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# React
+npm create vite@latest frontend
+
+cd frontend
+npm install
+npm run dev
+
+# Chakra UI & bootstrap
+npm i @chakra-ui/react @emotion/react @emotion/styled framer-motion
+npm install bootstrap@5.3.3
