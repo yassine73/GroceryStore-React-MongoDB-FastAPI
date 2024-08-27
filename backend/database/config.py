@@ -49,3 +49,6 @@ except Exception as e:
 
 
 db.command("collMod" , "product" , validator = Product_Validator)
+db.product.create_index("name", name="product_name_index")
+db.product.create_index("unit", name="product_unit_index")
+db.product.create_index("price", name="product_price_index")

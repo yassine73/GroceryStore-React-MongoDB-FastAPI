@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import ProductModal from "./ProductModal";
 import Header from "./Header";
 import {
@@ -17,6 +17,10 @@ export const ProductContext = createContext();
 function Product() {
   const [products, setProducts] = useState([]);
   const [filterBy, setFilterBy] = useState("");
+  const [skip, setSkip] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [valueInput, setValueInput] = useState("");
+  const AlertMessage = useRef("");
 
   // for alert
   const {
@@ -25,7 +29,7 @@ function Product() {
     onOpen,
   } = useDisclosure({ defaultIsOpen: false });
 
-  // Fetch Products / Get Method
+  // Fetch Products / Get Method => this is ajoutable you need to remove it when fix all
   const product_refresh = async () => {
     const apiURL = "http://127.0.0.1:8000/product";
     await fetch(apiURL)
@@ -35,26 +39,51 @@ function Product() {
 
   const handleFilterBy = (e) => {
     setFilterBy(e.target.value);
+    product_refresh();
+  };
+
+  const fetchDataBy = async (filterBy, searchInput) => {
+    const url = `http://127.0.0.1:8000/product?filterBy=${filterBy}&SearchText=${searchInput}&skip=${skip}`;
+    await fetch(url)
+      .then((res) => res.json())
+      .then((data) => setProducts(data.products));
   };
 
   const handleSearch = async (e) => {
     const searchInput = e.target.value;
-    if (searchInput) {
-      if (filterBy) {
-        const url = `http://127.0.0.1:8000/product/?filterBy=${filterBy}&SearchText=${searchInput}`;
-        fetch(url)
-          .then((res) => res.json())
-          .then((data) => setProducts(data.products));
-      } else {
-        console.log("Must select filter by to search");
+    setSkip(0);
+    setValueInput(e.target.value);
+
+    if (!searchInput) {
+      onClose();
+      product_refresh();
+    } else {
+      if (filterBy === "") {
+        AlertMessage.current = "Must select filter by to search";
         onOpen();
+      } else if (
+        filterBy === "price" ||
+        filterBy === "LowerPrice" ||
+        filterBy === "GreaterPrice"
+      ) {
+        if (searchInput % 1 !== 0) {
+          AlertMessage.current = "Search must be a Number";
+          onOpen();
+        } else {
+          fetchDataBy(filterBy, searchInput);
+        }
+      } else {
+        fetchDataBy(filterBy, searchInput);
       }
-    } else product_refresh();
+    }
   };
 
   useEffect(() => {
-    product_refresh();
+    fetchDataBy(filterBy, searchInput);
   }, []);
+  useEffect(() => {
+    fetchDataBy(filterBy, valueInput);
+  }, [skip, limit]);
 
   return (
     <ProductContext.Provider value={{ products, product_refresh }}>
@@ -65,9 +94,7 @@ function Product() {
             <Flex>
               <Box>
                 <AlertTitle>Error!</AlertTitle>
-                <AlertDescription>
-                  Please Select which Filter you want to search with!
-                </AlertDescription>
+                <AlertDescription>{AlertMessage.current}!</AlertDescription>
               </Box>
               <CloseButton
                 alignSelf="flex-start"
@@ -118,6 +145,49 @@ function Product() {
                 </td>
               </tr>
             ))}
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>
+                <nav aria-label="Page navigation example">
+                  <ul className="pagination">
+                    <li className="page-item">
+                      <button
+                        onClick={() => {
+                          if (skip >= limit) {
+                            setSkip(skip - limit);
+                          }
+                        }}
+                        className="page-link"
+                      >
+                        Previous
+                      </button>
+                    </li>
+                    <li className="page-item">
+                      <button className="page-link">1</button>
+                    </li>
+                    <li className="page-item">
+                      <button className="page-link">2</button>
+                    </li>
+                    <li className="page-item">
+                      <button className="page-link">3</button>
+                    </li>
+                    <li className="page-item">
+                      <button
+                        onClick={() => {
+                          setSkip(skip + limit);
+                        }}
+                        className="page-link"
+                      >
+                        Next
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </td>
+            </tr>
           </tbody>
         </table>
         <ProductModal />

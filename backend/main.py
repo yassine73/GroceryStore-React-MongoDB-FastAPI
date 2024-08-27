@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 # from files
-from api_routes import home, product
+from api_routes import home
+from api_routes.product import product
 
 
 app = FastAPI()

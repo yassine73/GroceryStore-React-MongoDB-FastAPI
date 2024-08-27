@@ -1,5 +1,8 @@
 import { Select, Input, Button, Flex } from "@chakra-ui/react";
 import ProductModal from "./ProductModal";
+import { createContext } from "react";
+
+export const useValueInput = createContext();
 
 function Header(props) {
   const searchInput = props.searchInput;
@@ -8,22 +11,25 @@ function Header(props) {
   return (
     <>
       <Flex spacing={3} marginY={10} marginX={5}>
-        <Select
-          placeholder="Filter By"
+        <select
+          className="form-select"
           id="filterDrop"
-          width="150px"
-          size="md"
-          mr="1"
+          style={{
+            width: "150px",
+            marginRight: 1,
+          }}
           onChange={(e) => {
             searchMethod(e);
+            document.getElementById("searchInput").value = "";
           }}
         >
+          <option value="">Filter By</option>
           <option value="name">Name</option>
           <option value="unit">Unit</option>
           <option value="price">Price</option>
           <option value="LowerPrice">Lower than price</option>
           <option value="GreaterPrice">Greater than price</option>
-        </Select>
+        </select>
         <Input
           id="searchInput"
           onChange={(e) => {

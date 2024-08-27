@@ -311,7 +311,67 @@ def starts_with_using_regex(name):
     print()
     pprint.pp([product for product in db.product.aggregate(pipeline)])
     print()
+    
+
+def group_and_push():
+    pipeline = [
+        {
+            # group by unit
+            "$group" : {
+                "_id" : "$unit",
+                # create field products and fill it with _id, name, price using $push
+                "products" : {
+                    # you can use this $push : "$name" if you want list of product name
+                    "$push" : {
+                        "_id": "$_id",
+                        "name": "$name",
+                        "price" : "$price"
+                    }
+                }
+            }
+        }
+    ]
+    
+    products = [product for product in db.product.aggregate(pipeline)]
+    pprint.pp(products)
+    
 
 
-starts_with_using_regex("po")
+def indexing(name):
+    pipeline = [
+        {
+            "$search" : {
+                "index" : "default",
+                "text" : {
+                    "query" : name,
+                    "path": "name"
+                }
+            }
+        }
+    ]
+    
+    products = [product for product in db.product.aggregate(pipeline)]
+    pprint.pp(products)
+    
+
+def indexing_compound():
+    db.product.create_index({ "price": 1 })
+
+    pipeline = [
+        {
+            "$match": { "price": { "$lt": 1 } }
+        },{
+            "$limit" : 5
+        }
+    ]
+    
+    products = [product for product in db.product.aggregate(pipeline)]
+    pprint.pp(products)
+    
+
+
+
+
+indexing_compound()
+pprint.pp([index for index in db.product.list_indexes()])
 

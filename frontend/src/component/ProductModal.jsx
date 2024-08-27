@@ -40,6 +40,11 @@ function ProductModal(props) {
         .then((data) => setProduct(data.product));
   };
 
+  const clearInputs = () => {
+    document.getElementById("filterDrop").selectedIndex = 0;
+    document.getElementById("searchInput").value = "";
+  };
+
   // Insert Product / Post Method
 
   const handleInsert = async () => {
@@ -56,7 +61,9 @@ function ProductModal(props) {
           unit: product.Unit,
           price: product.Price,
         }),
-      }).then(product_refresh);
+      })
+        .then(product_refresh)
+        .then(clearInputs);
       onClose();
     }
   };
@@ -71,7 +78,9 @@ function ProductModal(props) {
         unit: product.Unit,
         price: product.Price,
       }),
-    }).then(product_refresh);
+    })
+      .then(product_refresh)
+      .then(clearInputs);
     onClose();
   };
 
@@ -81,7 +90,9 @@ function ProductModal(props) {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: { _id: product._id },
-    }).then(product_refresh);
+    })
+      .then(product_refresh)
+      .then(clearInputs);
     onClose();
   };
 
