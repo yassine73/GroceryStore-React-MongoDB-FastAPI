@@ -148,7 +148,7 @@ function SearchProducts() {
                   }}
                   className="page-link"
                 >
-                  Previous
+                  Prev
                 </button>
               </li>
               <li className="page-item">
@@ -169,7 +169,7 @@ function SearchProducts() {
                 }}
                 className="page-item"
               >
-                <button className="page-link">last</button>
+                <button className="page-link">Last</button>
               </li>
             </ul>
           </nav>
