@@ -6,6 +6,7 @@ import uvicorn
 # from files
 from api_routes import home
 from api_routes.product import product
+from api_routes.order import order
 
 
 app = FastAPI()
@@ -30,6 +31,7 @@ app.add_middleware(
 
 app.include_router(home.router)
 app.include_router(product.router)
+app.include_router(order.router)
 
 
 if __name__=="__main__":

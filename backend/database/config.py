@@ -52,3 +52,42 @@ db.command("collMod" , "product" , validator = Product_Validator)
 db.product.create_index("name", name="product_name_index")
 db.product.create_index("unit", name="product_unit_index")
 db.product.create_index("price", name="product_price_index")
+
+
+
+# Schema Validator for order
+Order_Validator = {
+    "$jsonSchema" : {
+        "bsonType" : "object",
+        "required" : ["customer", "product_id", "qty", "order_date"],
+        "properties" : {
+            "customer" : {
+                "bsonType" : "string",
+                "description" : "Must be string"
+            },
+            "product_id" : {
+                "bsonType" : "string",
+                "description" : "Must be string"
+            },
+            "qty" : {
+                "bsonType" : "int",
+                "minimum" : 1,
+                "description" : "Must be Int and greater than 1"
+            },
+            "order_date" : {
+                "bsonType" : "date",
+                "description" : "Must be date default date of today"
+            }
+        }
+    }
+}
+
+# Create Product collection on validator above
+try:
+    db.create_collection("order")
+except Exception as e:
+    print(e)
+
+
+db.command("collMod" , "order" , validator = Order_Validator)
+# db.command("collMod" , "order")

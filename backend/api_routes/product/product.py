@@ -2,7 +2,7 @@
 from database.config import db
 from database.models import Product
 from database.schemas import show_product
-from api_routes.product.aggregationSearch import product_search_agg
+from api_routes.aggregationSearch import product_search_agg
 
 # from models
 from fastapi import APIRouter, HTTPException
@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 # Get Product and Count List by filter or all
-@router.get("/product", tags=["products"])
+@router.get("/product", tags=["Products"])
 async def show_product_by_filter(filterBy: str = None , SearchText: str = None, limit: int = 10, skip: int = 0):
     if filterBy and SearchText:
         data = list(db.product.aggregate(product_search_agg(filterBy, SearchText, limit, skip)))
@@ -24,7 +24,7 @@ async def show_product_by_filter(filterBy: str = None , SearchText: str = None, 
             "count" : count_products
         }
     products = [show_product(product) for product in db.product.find().skip(skip).limit(limit)]
-    count_products = [db.product.count_documents({})]
+    count_products = db.product.count_documents({})
     return {
         "products" : products,
         "count" : count_products
@@ -38,7 +38,7 @@ async def show_product_by_filter(filterBy: str = None , SearchText: str = None, 
 
 
 # Get Product by ID
-@router.get("/product/{_id}", tags=["products"])
+@router.get("/product/{_id}", tags=["Products"])
 async def show_product_by_id(_id: str):
     id_product = ObjectId(_id)
     product = db.product.find_one({"_id" : id_product})
@@ -49,17 +49,17 @@ async def show_product_by_id(_id: str):
 
 
 # Post Product
-@router.post("/product", tags=["products"])
+@router.post("/product", tags=["Products"])
 async def add_product(product: Product):
     try:
         db.product.insert_one(dict(product))
         return {"data" : "inserted"}
     except:
-        raise HTTPException(status_code=500, detail="unit must be 'kg' or 'each' and price must be greater than or equal 0")
+        raise HTTPException(status_code=400, detail="unit must be 'kg' or 'each' and price must be greater than or equal 0")
 
 
 # Put Product
-@router.put("/product/{_id}", tags=["products"])
+@router.put("/product/{_id}", tags=["Products"])
 async def update_product(_id: str, product: Product):
     id_product = ObjectId(_id)
     searched_product = db.product.find_one({"_id": id_product})
@@ -69,11 +69,11 @@ async def update_product(_id: str, product: Product):
         db.product.update_one({"_id": id_product}, {"$set" : dict(product)})
         return {"data" : "Product Updated!"}
     except Exception as e:
-        raise HTTPException(500, f"unit must be 'kg' or 'each' and price must be greater than or equal 0")
+        raise HTTPException(400, f"unit must be 'kg' or 'each' and price must be greater than or equal 0")
 
 
 # Delete Product
-@router.delete("/product/{_id}", tags=["products"])
+@router.delete("/product/{_id}", tags=["Products"])
 async def delete_product(_id: str):
     try:
         id_product = ObjectId(_id)
@@ -83,4 +83,4 @@ async def delete_product(_id: str):
         db.product.delete_one({"_id": id_product})
         return {"data" : "Product Deleted!"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"{e}")
+        raise HTTPException(status_code=400, detail=f"{e}")

@@ -106,18 +106,38 @@ pipeline = [
 
 
 # Run the aggregation
-data = list(product.aggregate(pipeline))
+# data = list(product.aggregate(pipeline))
 
 
-products = data[0]["products"]
-count_products = data[0]["count"][0]["total_products"] if data[0]["count"] else 0
+# products = data[0]["products"]
+# count_products = data[0]["count"][0]["total_products"] if data[0]["count"] else 0
 
-for pr in products:
-    print(pr)
-print(count_products)
+# for pr in products:
+#     print(pr)
+# print(count_products)
 
+from datetime import datetime as dt
+from bson import ObjectId
+from backend.database.models import Order
 
+# db.order.update_one({"_id" : ObjectId("66cefcc6e154c4d14e661ca5")},{
+#     "$set" : {
+#         "customer": "yassine",
+#     "product_id": "66c7caf44f2aa8c1c7bc26d3",
+#     "qty": 25,
+#     "order_date": dt.strptime("2024-08-27T19:00:57.053000", r"%Y-%m-%dT%H:%M:%S.%f")
+#     }
+# })
 
+order = Order(customer="ilham", product_id="66c7caf44f2aa8c1c7bc26d3",qty=1000)
+
+# db.order.insert_one(dict(order))
+
+# db.drop_collection("order")
+
+orders = [order for order in db.order.find()]
+
+pprint.pp(orders)
 
 
 
