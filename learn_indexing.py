@@ -20,13 +20,13 @@ product = db.product
 
 # create index
 # product.create_index({fields : 1 for ascending or -1 for descending}, name = the name of index, default_language = the language of the field)
-# product.create_index("name", name="created_index_name", default_language='english') # by default ascending
+# product.create_index("name", name="created_index_name_1", default_language='english') # by default ascending
 
 
 
 # Compound index
 ## is when you create index of two fields
-# product.create_index({"name" : 1, "price" : -1}, name = "created_index_name") # first find and sort with name then price
+# product.create_index({"price" : -1}, name = "created_index_name_2") # first find and sort with name then price
 
 
 
@@ -120,24 +120,48 @@ from datetime import datetime as dt
 from bson import ObjectId
 from backend.database.models import Order
 
-# db.order.update_one({"_id" : ObjectId("66cefcc6e154c4d14e661ca5")},{
+# db.order.update_one({"_id" : ObjectId("66cef9195c53097f9ea6feec")},{
 #     "$set" : {
-#         "customer": "yassine",
-#     "product_id": "66c7caf44f2aa8c1c7bc26d3",
+#     "customer": "ilham",
+#     "product_id": "66c7caf44f2aa8c1c7bc26dd",
 #     "qty": 25,
 #     "order_date": dt.strptime("2024-08-27T19:00:57.053000", r"%Y-%m-%dT%H:%M:%S.%f")
 #     }
 # })
 
-order = Order(customer="ilham", product_id="66c7caf44f2aa8c1c7bc26d3",qty=1000)
+# order = Order(customer="ilham", product_id="66c7caf44f2aa8c1c7bc26d3",qty=1000)
 
 # db.order.insert_one(dict(order))
 
 # db.drop_collection("order")
 
-orders = [order for order in db.order.find()]
 
-pprint.pp(orders)
+
+pipeline = [
+    {
+        
+        "$lookup" : {
+            "from" : "product",
+            "localField" : "product_id",
+            "foreignField" : "_id",
+            "as" : "obj"
+        }
+    },
+    {
+        "$match" : {
+            "customer" : "yassine"
+        }
+    }
+]
+
+# db.order.create_index({"product_id" : 1}, name="index_product_id")
+
+
+# orders = [order for order in db.order.aggregate(pipeline)]
+
+# orders = [order for order in db.order.find()]
+
+# pprint.pp(orders)
 
 
 
@@ -158,6 +182,7 @@ pprint.pp(orders)
 
 
 
+product.drop_index("*")
 # show indexes
-# for index in product.list_indexes():
-#     pprint.pp(index)
+for index in product.list_indexes():
+    pprint.pp(index)
